@@ -1,0 +1,15 @@
+---
+description: Convenciones del proyecto Gestor de Documentos de Proyectos
+alwaysApply: true
+---
+
+# Proyecto GDP
+
+- Ruta: `$HOME/Documentos/SOFTWARE/CARGUE DOCUMENTOS` (siempre entre comillas por el espacio)
+- Stack: React+Vite frontend, FastAPI backend, PostgreSQL, Docker Compose
+- Puerto UI: `8080` · PostgreSQL no se publica
+- Secretos solo en `.env` (nunca en código ni en el chat)
+- PDFs en `./storage/uploads` con nombres UUID; API autentica view/download
+- Soft-delete / archivado; versionado al reemplazar documentos
+- Respuestas al usuario en **español**
+- No acciones destructivas sin respaldo; no `latest` sin versión fijada

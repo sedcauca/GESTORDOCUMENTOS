@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestor de Documentos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20260925o" />
+</head>
+<body>
+  <div id="login-screen" class="login-screen" hidden>
+    <aside class="login-panel" aria-label="Marca institucional">
+      <div class="login-panel-inner">
+        <div class="login-logo-plate">
+          <img
+            class="login-logo"
+            src="/static/img/logosedcauca.png"
+            alt="Gobernación del Cauca — Secretaría de Educación y Cultura"
+            width="420"
+            height="120"
+          />
+        </div>
+        <h1 class="login-panel-title">Gestor de Documentos</h1>
+        <span class="login-panel-rule" aria-hidden="true"></span>
+        <p class="login-panel-lead">
+          Plataforma centralizada para la gestión documental de la Secretaría de Educación y Cultura.
+        </p>
+      </div>
+    </aside>
+
+    <section class="login-form-panel">
+      <form id="login-form" class="login-form" autocomplete="on">
+        <header class="login-form-header">
+          <h2 class="login-form-title">Iniciar sesión</h2>
+          <p class="login-form-subtitle">Ingrese sus credenciales institucionales</p>
+        </header>
+
+        <label class="field login-field">
+          <span>Usuario / Correo electrónico</span>
+          <span class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M3.5 5.75A2.25 2.25 0 0 1 5.75 3.5h8.5A2.25 2.25 0 0 1 16.5 5.75v8.5a2.25 2.25 0 0 1-2.25 2.25h-8.5A2.25 2.25 0 0 1 3.5 14.25v-8.5Zm2.25-.75a.75.75 0 0 0-.75.75v.2l5 3.2 5-3.2v-.2a.75.75 0 0 0-.75-.75h-8.5Zm9.5 2.48-4.52 2.9a.75.75 0 0 1-.8 0L5.25 7.48v6.77c0 .41.34.75.75.75h8.5c.41 0 .75-.34.75-.75V7.48Z"
+              />
+            </svg>
+            <input
+              type="email"
+              id="login-email"
+              name="email"
+              required
+              autocomplete="username"
+              placeholder="usuario@ejemplo.com"
+            />
+          </span>
+        </label>
+
+        <label class="field login-field">
+          <span>Contraseña</span>
+          <span class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M10 2.5a3.5 3.5 0 0 0-3.5 3.5v1.75H6A1.75 1.75 0 0 0 4.25 9.5v5.75c0 .97.78 1.75 1.75 1.75h8c.97 0 1.75-.78 1.75-1.75V9.5A1.75 1.75 0 0 0 14 7.75h-.5V6A3.5 3.5 0 0 0 10 2.5Zm-2 3.5a2 2 0 1 1 4 0v1.75H8V6Zm-1.75 3.25h7.5c.14 0 .25.11.25.25v5.75a.25.25 0 0 1-.25.25h-8a.25.25 0 0 1-.25-.25V9.5c0-.14.11-.25.25-.25Z"
+              />
+            </svg>
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+            />
+          </span>
+        </label>
+
+        <p class="form-error" id="login-error" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-block btn-login" id="btn-login">
+          Ingresar al sistema
+        </button>
+      </form>
+
+      <p class="login-footer">© 2026 Secretaría de Educación y Cultura. Todos los derechos reservados.</p>
+    </section>
+  </div>
+
+  <div class="app-shell" id="app-shell" hidden>
+    <aside class="sidebar" aria-label="Navegación">
+      <div class="brand">
+        <div class="brand-logo-plate">
+          <img
+            class="brand-logo"
+            src="/static/img/logo-gobernacion-cauca.png"
+            alt="Gobernación del Cauca"
+            width="1040"
+            height="393"
+          />
+        </div>
+        <div class="brand-copy">
+          <p class="brand-kicker">Secretaría de Educación y Cultura</p>
+          <h1 class="brand-title">Gestor de Documentos</h1>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block btn-sidebar-cta" id="btn-new-project" hidden>
+        <svg class="btn-sidebar-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M4.25 3.5A1.75 1.75 0 0 0 2.5 5.25v9.5c0 .97.78 1.75 1.75 1.75h11.5A1.75 1.75 0 0 0 17.5 14.75v-7A1.75 1.75 0 0 0 15.75 6H10.6L9.1 4.35A1.75 1.75 0 0 0 7.8 3.5H4.25Z"
+            opacity="0.92"
+          />
+          <circle cx="14.4" cy="13.9" r="4.1" fill="#1e212b" />
+          <path
+            fill="#fafafa"
+            d="M14.4 11.7a.5.5 0 0 1 .5.5v1.2h1.2a.5.5 0 0 1 0 1h-1.2v1.2a.5.5 0 0 1-1 0v-1.2h-1.2a.5.5 0 0 1 0-1h1.2v-1.2a.5.5 0 0 1 .5-.5Z"
+          />
+        </svg>
+        <span>Crear nuevo proyecto</span>
+      </button>
+
+      <button type="button" class="btn btn-secondary btn-block btn-on-dark" id="btn-open-users" hidden>
+        <svg class="btn-sidebar-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M7.25 9.25a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5Zm5.5-.5a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
+            opacity="0.95"
+          />
+          <path
+            fill="currentColor"
+            d="M2.5 15.35c0-2.2 2.05-3.85 4.75-3.85s4.75 1.65 4.75 3.85v.4A.75.75 0 0 1 11.25 16.5H3.25A.75.75 0 0 1 2.5 15.75v-.4Zm9.2-.35c.42-1.05 1.55-1.8 2.95-1.8 1.7 0 3.1 1.1 3.1 2.7v.35a.75.75 0 0 1-.75.75h-4.9a1.9 1.9 0 0 1-.4-2Z"
+            opacity="0.85"
+          />
+        </svg>
+        <span>Gestionar usuarios</span>
+      </button>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">Proyectos</p>
+        <label class="sidebar-search" for="project-search">
+          <span class="visually-hidden">Buscar proyecto</span>
+          <input
+            type="search"
+            id="project-search"
+            placeholder="Buscar por nombre o BPIN"
+            autocomplete="off"
+          />
+        </label>
+        <nav id="project-list" class="nav-list nav-list-projects" aria-label="Lista de proyectos"></nav>
+      </div>
+
+      <div class="sidebar-section" id="folder-section" hidden>
+        <div class="sidebar-label-row">
+          <p class="sidebar-label">Carpetas</p>
+          <button type="button" class="btn-new-folder" id="btn-new-folder" title="Nueva carpeta" hidden>
+            <svg class="btn-new-folder-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M2.25 5.4A1.65 1.65 0 0 1 3.9 3.75h3.05c.33 0 .65.13.88.36l.7.7c.23.23.55.36.88.36h6.7A1.65 1.65 0 0 1 17.75 6.8v7.8a1.65 1.65 0 0 1-1.65 1.65H3.9A1.65 1.65 0 0 1 2.25 14.6V5.4Z"
+                opacity="0.9"
+              />
+              <circle cx="14.35" cy="13.85" r="4.15" fill="#1e212b" />
+              <path
+                fill="#fafafa"
+                d="M14.35 11.55a.55.55 0 0 1 .55.55v1.15h1.15a.55.55 0 0 1 0 1.1H14.9v1.15a.55.55 0 0 1-1.1 0V14.35h-1.15a.55.55 0 0 1 0-1.1h1.15V12.1a.55.55 0 0 1 .55-.55Z"
+              />
+            </svg>
+            <span>Nueva carpeta</span>
+          </button>
+        </div>
+        <nav id="folder-list" class="nav-list" aria-label="Carpetas del proyecto"></nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button type="button" class="btn-trash" id="btn-open-trash" hidden>
+          <span>Papelera</span>
+          <span class="trash-count" id="trash-count">0</span>
+        </button>
+
+        <div class="sidebar-user" id="sidebar-user">
+          <div class="sidebar-user-info">
+            <strong id="user-name">—</strong>
+            <span id="user-role">—</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-logout" id="btn-logout">Salir</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="header-title">
+          <h2 class="page-title" id="page-title">Bienvenido</h2>
+          <p class="eyebrow" id="context-eyebrow">Sin proyecto seleccionado</p>
+          <p class="folder-subtitle" id="folder-subtitle" hidden></p>
+        </div>
+      </header>
+      <p class="header-meta" id="header-meta">Cree o seleccione un proyecto para comenzar.</p>
+
+      <section class="panel" id="empty-state">
+        <h3>Empiece por un proyecto</h3>
+        <p>Cada proyecto pide nombre y BPIN. Luego podrá crear carpetas, renombrarlas y subir PDFs.</p>
+        <button type="button" class="btn btn-primary" id="btn-new-project-empty">Crear primer proyecto</button>
+      </section>
+
+      <section class="panel" id="no-folders-state" hidden>
+        <h3>Este proyecto no tiene carpetas</h3>
+        <p>Cree una carpeta para organizar y cargar documentos PDF.</p>
+        <button type="button" class="btn btn-primary" id="btn-new-folder-empty">Crear carpeta</button>
+      </section>
+
+      <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
+
+      <section class="panel" id="docs-panel" hidden>
+        <div class="panel-head">
+          <h3>Documentos en esta carpeta</h3>
+          <div class="panel-head-right">
+            <span class="count-pill" id="docs-count">0</span>
+            <div class="empty-docs" id="docs-empty" hidden>
+              <span>Aún no hay documentos en esta carpeta.</span>
+              <button type="button" class="btn btn-primary" id="btn-upload-new-empty">Subir nuevo documento</button>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-upload-more" hidden>Subir documentos</button>
+          </div>
+        </div>
+        <div class="table-wrap" id="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Nombre del documento</th>
+                <th>Archivo</th>
+                <th>Subido por</th>
+                <th class="col-edited">Editado por</th>
+                <th>Tamaño</th>
+                <th>Vista</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="docs-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="project-dialog" class="dialog">
+    <form method="dialog" id="project-form" class="dialog-body">
+      <header>
+        <h3 id="project-dialog-title">Crear nuevo proyecto</h3>
+        <p id="project-dialog-help">El nombre y el BPIN definen la carpeta raíz en el servidor.</p>
+      </header>
+
+      <label class="field">
+        <span>Nombre del proyecto</span>
+        <input type="text" id="project-name" required maxlength="200" placeholder="Ej. Mejoramiento vial zona norte" />
+      </label>
+
+      <label class="field">
+        <span>BPIN</span>
+        <input type="text" id="project-bpin" required maxlength="50" placeholder="Ej. 2024123456" />
+      </label>
+
+      <p class="form-error" id="project-error" hidden></p>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-project" value="cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-project">Crear proyecto</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="folder-dialog" class="dialog">
+    <form method="dialog" id="folder-form" class="dialog-body">
+      <header>
+        <h3 id="folder-dialog-title">Nueva carpeta</h3>
+        <p id="folder-dialog-help">Indique el nombre de la carpeta dentro del proyecto actual.</p>
+      </header>
+
+      <label class="field">
+        <span>Nombre de la carpeta</span>
+        <input type="text" id="folder-name" required maxlength="200" placeholder="Ej. Contratos" autocomplete="off" />
+      </label>
+
+      <p class="form-error" id="folder-error" hidden></p>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-folder" value="cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-folder">Guardar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="upload-dialog" class="dialog dialog-wide">
+    <form method="dialog" id="upload-form" class="dialog-body">
+      <header>
+        <h3 id="upload-dialog-title">Subir documento</h3>
+        <p id="upload-dialog-help">Solo archivos PDF. La fecha de carga se asigna automáticamente.</p>
+      </header>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>Nombre del documento</span>
+          <input type="text" id="doc-name" name="nombre" required maxlength="300" placeholder="Ej. Acta de reunión" autocomplete="off" />
+        </label>
+
+        <label class="field">
+          <span>Fecha de carga</span>
+          <input type="text" id="doc-date" name="fecha" readonly tabindex="-1" />
+        </label>
+
+        <div class="field field-full" id="doc-file-field">
+          <span class="field-label" id="doc-file-label">Archivo (solo PDF)</span>
+
+          <div class="pdf-replace" id="pdf-replace-panel" hidden>
+            <div class="pdf-slot pdf-slot-current">
+              <p class="pdf-slot-label">1. Archivo actual</p>
+              <p class="pdf-slot-name" id="doc-current-file">—</p>
+              <p class="pdf-slot-note">Este PDF permanecerá si no elige otro.</p>
+            </div>
+            <div class="pdf-slot pdf-slot-new">
+              <p class="pdf-slot-label">2. Reemplazar por un PDF nuevo</p>
+              <button type="button" class="btn btn-secondary" id="btn-pick-pdf">Elegir PDF nuevo</button>
+              <p class="pdf-slot-name pdf-slot-pending" id="doc-new-file">Ningún archivo nuevo seleccionado</p>
+            </div>
+          </div>
+
+          <input type="file" id="doc-file" name="file" accept="application/pdf,.pdf" />
+          <span class="form-hint" id="doc-file-hint" hidden></span>
+        </div>
+      </div>
+
+      <p class="form-hint" id="upload-size-hint">Máximo 50 MB · formato PDF</p>
+      <p class="form-error" id="upload-error" hidden></p>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-upload" value="cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-upload">Subir documento</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="delete-warning-dialog" class="dialog">
+    <form method="dialog" id="delete-warning-form" class="dialog-body">
+      <header>
+        <h3 id="delete-warning-title">¿Está seguro?</h3>
+        <p id="delete-warning-text">Confirme si desea continuar con esta acción.</p>
+      </header>
+      <div class="confirm-subject" id="confirm-subject" hidden>
+        <div class="confirm-subject-row">
+          <span class="confirm-subject-label" id="confirm-subject-label-1">Proyecto</span>
+          <strong class="confirm-subject-value" id="confirm-subject-name">—</strong>
+        </div>
+        <div class="confirm-subject-row">
+          <span class="confirm-subject-label" id="confirm-subject-label-2">BPIN</span>
+          <strong class="confirm-subject-value" id="confirm-subject-bpin">—</strong>
+        </div>
+      </div>
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancelar</button>
+        <button type="submit" class="btn btn-danger" id="btn-confirm-delete">Confirmar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="trash-dialog" class="dialog dialog-wide">
+    <div class="dialog-body">
+      <header>
+        <h3>Papelera</h3>
+        <p id="trash-dialog-help">Proyectos, carpetas y documentos eliminados. Puede restaurarlos o borrarlos definitivamente.</p>
+      </header>
+      <div id="trash-list" class="trash-list"></div>
+      <p class="empty-docs" id="trash-empty" hidden>La papelera está vacía.</p>
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-close-trash">Cerrar</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="users-dialog" class="dialog users-dialog">
+    <div class="dialog-body users-dialog-body">
+      <header class="users-dialog-header">
+        <div>
+          <h3>Usuarios</h3>
+          <p id="users-dialog-help">Cree y administre cuentas según su rol.</p>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btn-close-users">Cerrar</button>
+      </header>
+
+      <form id="user-form" class="user-form">
+        <div class="users-form-grid">
+          <label class="field">
+            <span>Nombre completo</span>
+            <input type="text" id="user-full-name" required maxlength="200" autocomplete="name" />
+          </label>
+          <label class="field">
+            <span>Correo</span>
+            <input type="email" id="user-email" required autocomplete="off" />
+          </label>
+          <label class="field" id="user-password-field">
+            <span id="user-password-label">Contraseña</span>
+            <input type="password" id="user-password" minlength="8" autocomplete="new-password" />
+          </label>
+          <label class="field">
+            <span>Rol</span>
+            <select id="user-role-select" required></select>
+          </label>
+        </div>
+        <p class="form-error" id="user-form-error" hidden></p>
+        <div class="users-form-actions">
+          <button type="submit" class="btn btn-primary" id="btn-save-user">Crear usuario</button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-user-edit" hidden>Cancelar</button>
+        </div>
+      </form>
+
+      <div class="users-list-block">
+        <div class="users-list-head">
+          <p class="users-list-label">Cuentas registradas</p>
+          <span class="users-list-count" id="users-count">0</span>
+        </div>
+        <div class="users-list" id="users-body" role="list"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="password-dialog" class="dialog">
+    <form method="dialog" id="password-form" class="dialog-body">
+      <header>
+        <h3>Actualizar contraseña</h3>
+        <p id="password-dialog-help">Defina una nueva contraseña para el usuario.</p>
+      </header>
+      <label class="field">
+        <span>Nueva contraseña</span>
+        <input type="password" id="password-new" required minlength="8" maxlength="128" autocomplete="new-password" />
+      </label>
+      <label class="field">
+        <span>Confirmar contraseña</span>
+        <input type="password" id="password-confirm" required minlength="8" maxlength="128" autocomplete="new-password" />
+      </label>
+      <p class="form-error" id="password-form-error" hidden></p>
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-password">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-password">Guardar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="preview-dialog" class="dialog preview-dialog">
+    <form method="dialog" class="dialog-body">
+      <header class="preview-dialog-header">
+        <h3 id="preview-title">Vista previa</h3>
+        <button type="submit" class="btn btn-secondary" id="btn-close-preview">Cerrar</button>
+      </header>
+      <div id="preview-pages" class="preview-pages"></div>
+    </form>
+  </dialog>
+
+  <script src="/static/js/app.js?v=20260925p" defer></script>
+</body>
+</html>

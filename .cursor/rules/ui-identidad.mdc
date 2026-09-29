@@ -1,0 +1,30 @@
+---
+description: Identidad visual y anti-estética IA del Gestor de Documentos
+alwaysApply: true
+---
+
+# Identidad visual (obligatoria)
+
+## Paleta
+
+- Fondo: `#F4F4F5` · Superficie: `#FFFFFF`
+- Texto: `#111111` · Secundario: `#71717A`
+- Bordes: `#E4E4E7`
+- Sidebar / CTA primario: negro `#111111`
+- Sin teal, petróleo, púrpura ni acentos saturados (salvo error/éxito semánticos)
+
+## Tipografía
+
+- **Plus Jakarta Sans** para UI y títulos (profesional web)
+- Pesos 400 / 500 / 600 / 700 · tracking negativo en headings
+
+## Botones
+
+- Primario: fondo negro, texto blanco, radio 6px, sombra suave
+- Secundario: blanco + borde gris
+- Ghost: transparente
+- Hover limpio, `:active` scale 0.98 — sin “botón 3D” de color
+
+## Skills Hermes
+
+Consultar `~/.hermes/skills/design/minimalist-ui` y `anti-ai-slop-design` al rediseñar.

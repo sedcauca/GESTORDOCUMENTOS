@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta
+      name="description"
+      content="Portal Institucional de Aplicaciones — acceso centralizado y seguro a todas las plataformas institucionales."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Portal Institucional de Aplicaciones" />
+    <meta
+      property="og:description"
+      content="Acceso centralizado y seguro a todas las plataformas institucionales."
+    />
+    <meta name="twitter:card" content="summary" />
+    <title>Portal Institucional de Aplicaciones</title>
+
+    <!-- Preload fuentes críticas (solo latin) -->
+    <link rel="preload" href="/fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/space-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <!-- Skip link para accesibilidad -->
+    <a href="#aplicaciones" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-slate-900 focus:outline-2 focus:outline-sky-400">
+      Saltar al contenido principal
+    </a>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
