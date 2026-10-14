@@ -1,14 +1,15 @@
 """Rutas de documentos."""
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.errors import abort
 from app.deps import can_manage_document, require_roles
 from app.models import User
 from app.roles import DOC_WRITE_ROLES, READ_ROLES
 from app.schemas import DocumentOut
-from app.services import document_service, trash_service
+from app.services import document_service, project_service, trash_service
 
 router = APIRouter(prefix="/api", tags=["documents"])
 
@@ -17,8 +18,9 @@ router = APIRouter(prefix="/api", tags=["documents"])
 def list_documents(
     folder_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*READ_ROLES)),
+    actor: User = Depends(require_roles(*READ_ROLES)),
 ):
+    project_service.assert_folder_visible(db, actor, folder_id)
     return document_service.list_documents(db, folder_id)
 
 
@@ -30,6 +32,7 @@ async def upload_document(
     db: Session = Depends(get_db),
     actor: User = Depends(require_roles(*DOC_WRITE_ROLES)),
 ):
+    project_service.assert_folder_visible(db, actor, folder_id)
     return await document_service.upload_document(
         db, folder_id, nombre, file, uploaded_by_id=actor.id
     )
@@ -39,8 +42,9 @@ async def upload_document(
 def document_pages(
     document_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*READ_ROLES)),
+    actor: User = Depends(require_roles(*READ_ROLES)),
 ):
+    project_service.assert_document_visible(db, actor, document_id)
     document = document_service.get_document(db, document_id)
     return {"pages": document_service.document_page_count(document)}
 
@@ -50,8 +54,9 @@ def preview_document(
     document_id: int,
     page: int = 1,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*READ_ROLES)),
+    actor: User = Depends(require_roles(*READ_ROLES)),
 ):
+    project_service.assert_document_visible(db, actor, document_id)
     document = document_service.get_document(db, document_id)
     path = document_service.ensure_document_preview(document, page)
     return FileResponse(path=path, media_type="image/png")
@@ -61,8 +66,9 @@ def preview_document(
 def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*READ_ROLES)),
+    actor: User = Depends(require_roles(*READ_ROLES)),
 ):
+    project_service.assert_document_visible(db, actor, document_id)
     document = document_service.get_document(db, document_id)
     path = document_service.resolve_document_file(document)
     return FileResponse(
@@ -80,12 +86,10 @@ async def update_document(
     db: Session = Depends(get_db),
     actor: User = Depends(require_roles(*DOC_WRITE_ROLES)),
 ):
+    project_service.assert_document_visible(db, actor, document_id)
     document = document_service.get_document(db, document_id)
     if not can_manage_document(actor, document):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo puede editar documentos que usted subió",
-        )
+        abort(status.HTTP_403_FORBIDDEN, "Solo puede editar documentos que usted subió")
     return await document_service.update_document(
         db, document_id, nombre, file, updated_by_id=actor.id
     )
@@ -97,4 +101,5 @@ def move_document_to_trash(
     db: Session = Depends(get_db),
     actor: User = Depends(require_roles(*DOC_WRITE_ROLES)),
 ):
+    project_service.assert_document_visible(db, actor, document_id)
     return trash_service.move_document_to_trash(db, document_id, actor=actor)

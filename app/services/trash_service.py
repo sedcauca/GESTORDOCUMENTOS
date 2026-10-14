@@ -8,8 +8,9 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.config import TRASH_DIR, UPLOADS_DIR
-from app.deps import can_manage_document, is_full_writer
+from app.deps import can_manage_document
 from app.models import Document, Folder, Project, User
+from app.roles import ROLE_ADMIN, ROLE_SUPER_ADMIN
 from app.services import folder_service, project_service
 from app.utils import ensure_dir, project_root_name
 
@@ -52,19 +53,25 @@ def _deleted_by_fields(entity) -> dict:
     }
 
 
-def list_trash_items(db: Session, actor: User) -> list[dict]:
-    """Admin/super: papelera completa. Usuario: carpetas que borró y documentos de la papelera."""
-    items: list[dict] = []
-    full_access = is_full_writer(actor)
+def _guard_project(db: Session, actor: User, project_id: int) -> None:
+    project_service.assert_project_visible(db, actor, project_id, include_trashed=True)
 
-    if full_access:
-        for project in (
+
+def list_trash_items(db: Session, actor: User) -> list[dict]:
+    """Super: papelera completa. Administrador: su dependencia. Usuario: lo suyo en proyectos asignados."""
+    items: list[dict] = []
+    is_super = actor.role_name == ROLE_SUPER_ADMIN
+    is_admin = actor.role_name == ROLE_ADMIN
+
+    if is_super or is_admin:
+        project_query = (
             db.query(Project)
             .options(joinedload(Project.deleted_by))
             .filter(Project.deleted_at.is_not(None))
-            .order_by(Project.deleted_at.desc())
-            .all()
-        ):
+        )
+        if is_admin:
+            project_query = project_query.filter(Project.dependencia_id == actor.dependencia_id)
+        for project in project_query.order_by(Project.deleted_at.desc()).all():
             items.append(
                 {
                     "type": "project",
@@ -86,8 +93,17 @@ def list_trash_items(db: Session, actor: User) -> list[dict]:
         .join(Project)
         .filter(Folder.deleted_at.is_not(None), Project.deleted_at.is_(None))
     )
-    if not full_access:
-        folders_query = folders_query.filter(Folder.deleted_by_id == actor.id)
+    if is_admin:
+        folders_query = folders_query.filter(Project.dependencia_id == actor.dependencia_id)
+    elif not is_super:
+        folders_query = (
+            folders_query.join(Project.members)
+            .filter(
+                User.id == actor.id,
+                Project.dependencia_id == actor.dependencia_id,
+                Folder.deleted_by_id == actor.id,
+            )
+        )
 
     for folder in folders_query.order_by(Folder.deleted_at.desc()).all():
         active_docs = len([d for d in folder.documents if d.deleted_at is None])
@@ -116,9 +132,16 @@ def list_trash_items(db: Session, actor: User) -> list[dict]:
             Project.deleted_at.is_(None),
         )
     )
-    if not full_access:
-        docs_query = docs_query.filter(
-            or_(Document.uploaded_by_id == actor.id, Document.deleted_by_id == actor.id)
+    if is_admin:
+        docs_query = docs_query.filter(Project.dependencia_id == actor.dependencia_id)
+    elif not is_super:
+        docs_query = (
+            docs_query.join(Project.members)
+            .filter(
+                User.id == actor.id,
+                Project.dependencia_id == actor.dependencia_id,
+                or_(Document.uploaded_by_id == actor.id, Document.deleted_by_id == actor.id),
+            )
         )
 
     for document in docs_query.order_by(Document.deleted_at.desc()).all():
@@ -168,7 +191,9 @@ def move_project_to_trash(db: Session, project_id: int, actor: User | None = Non
     return project_service.get_project(db, project.id, include_trashed=True)
 
 
-def restore_project(db: Session, project_id: int) -> Project:
+def restore_project(db: Session, project_id: int, actor: User | None = None) -> Project:
+    if actor is not None:
+        _guard_project(db, actor, project_id)
     project = (
         db.query(Project)
         .options(joinedload(Project.folders).joinedload(Folder.documents))
@@ -218,7 +243,9 @@ def restore_project(db: Session, project_id: int) -> Project:
     return project_service.get_project(db, project.id)
 
 
-def purge_project(db: Session, project_id: int) -> None:
+def purge_project(db: Session, project_id: int, actor: User | None = None) -> None:
+    if actor is not None:
+        _guard_project(db, actor, project_id)
     project = (
         db.query(Project)
         .options(joinedload(Project.folders).joinedload(Folder.documents))
@@ -289,6 +316,7 @@ def restore_document(db: Session, document_id: int, actor: User | None = None) -
         )
     if actor is not None:
         _require_document_access(actor, document)
+        _guard_project(db, actor, document.folder.project_id)
     if document.folder.deleted_at is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -316,7 +344,12 @@ def restore_document(db: Session, document_id: int, actor: User | None = None) -
 
 
 def purge_document(db: Session, document_id: int, actor: User | None = None) -> None:
-    document = db.query(Document).filter(Document.id == document_id).first()
+    document = (
+        db.query(Document)
+        .options(joinedload(Document.folder))
+        .filter(Document.id == document_id)
+        .first()
+    )
     if not document or document.deleted_at is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -324,6 +357,7 @@ def purge_document(db: Session, document_id: int, actor: User | None = None) -> 
         )
     if actor is not None:
         _require_document_access(actor, document)
+        _guard_project(db, actor, document.folder.project_id)
     path = Path(document.file_path)
     db.delete(document)
     db.commit()
@@ -337,8 +371,10 @@ def purge_document(db: Session, document_id: int, actor: User | None = None) -> 
             pass
 
 
-def restore_folder(db: Session, folder_id: int) -> Folder:
+def restore_folder(db: Session, folder_id: int, actor: User | None = None) -> Folder:
     folder = folder_service.get_folder(db, folder_id, include_trashed=True)
+    if actor is not None:
+        _guard_project(db, actor, folder.project_id)
     if folder.project.deleted_at is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -348,4 +384,10 @@ def restore_folder(db: Session, folder_id: int) -> Folder:
 
 
 move_folder_to_trash = folder_service.move_folder_to_trash
-purge_folder = folder_service.purge_folder
+
+
+def purge_folder(db: Session, folder_id: int, actor: User | None = None) -> None:
+    folder = folder_service.get_folder(db, folder_id, include_trashed=True)
+    if actor is not None:
+        _guard_project(db, actor, folder.project_id)
+    folder_service.purge_folder(db, folder_id)

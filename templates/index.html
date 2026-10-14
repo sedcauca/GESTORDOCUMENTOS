@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20260925o" />
+  <link rel="stylesheet" href="/static/css/base.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/shell.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/trash.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/lists.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/dialogs.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/login.css?v=20261014a" />
+  <link rel="stylesheet" href="/static/css/panels.css?v=20261014a" />
 </head>
 <body>
   <div id="login-screen" class="login-screen" hidden>
@@ -119,7 +125,11 @@
             d="M14.4 11.7a.5.5 0 0 1 .5.5v1.2h1.2a.5.5 0 0 1 0 1h-1.2v1.2a.5.5 0 0 1-1 0v-1.2h-1.2a.5.5 0 0 1 0-1h1.2v-1.2a.5.5 0 0 1 .5-.5Z"
           />
         </svg>
-        <span>Crear nuevo proyecto</span>
+        <span>Gestión de proyectos</span>
+      </button>
+
+      <button type="button" class="btn btn-secondary btn-block btn-on-dark" id="btn-new-dependencia" hidden>
+        <span>Gestión de dependencias</span>
       </button>
 
       <button type="button" class="btn btn-secondary btn-block btn-on-dark" id="btn-open-users" hidden>
@@ -138,42 +148,6 @@
         <span>Gestionar usuarios</span>
       </button>
 
-      <div class="sidebar-section">
-        <p class="sidebar-label">Proyectos</p>
-        <label class="sidebar-search" for="project-search">
-          <span class="visually-hidden">Buscar proyecto</span>
-          <input
-            type="search"
-            id="project-search"
-            placeholder="Buscar por nombre o BPIN"
-            autocomplete="off"
-          />
-        </label>
-        <nav id="project-list" class="nav-list nav-list-projects" aria-label="Lista de proyectos"></nav>
-      </div>
-
-      <div class="sidebar-section" id="folder-section" hidden>
-        <div class="sidebar-label-row">
-          <p class="sidebar-label">Carpetas</p>
-          <button type="button" class="btn-new-folder" id="btn-new-folder" title="Nueva carpeta" hidden>
-            <svg class="btn-new-folder-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path
-                fill="currentColor"
-                d="M2.25 5.4A1.65 1.65 0 0 1 3.9 3.75h3.05c.33 0 .65.13.88.36l.7.7c.23.23.55.36.88.36h6.7A1.65 1.65 0 0 1 17.75 6.8v7.8a1.65 1.65 0 0 1-1.65 1.65H3.9A1.65 1.65 0 0 1 2.25 14.6V5.4Z"
-                opacity="0.9"
-              />
-              <circle cx="14.35" cy="13.85" r="4.15" fill="#1e212b" />
-              <path
-                fill="#fafafa"
-                d="M14.35 11.55a.55.55 0 0 1 .55.55v1.15h1.15a.55.55 0 0 1 0 1.1H14.9v1.15a.55.55 0 0 1-1.1 0V14.35h-1.15a.55.55 0 0 1 0-1.1h1.15V12.1a.55.55 0 0 1 .55-.55Z"
-              />
-            </svg>
-            <span>Nueva carpeta</span>
-          </button>
-        </div>
-        <nav id="folder-list" class="nav-list" aria-label="Carpetas del proyecto"></nav>
-      </div>
-
       <div class="sidebar-bottom">
         <button type="button" class="btn-trash" id="btn-open-trash" hidden>
           <span>Papelera</span>
@@ -190,8 +164,190 @@
       </div>
     </aside>
 
-    <main class="main">
-      <header class="main-header">
+    <main class="main" id="app-main">
+      <section id="users-panel" class="users-panel" hidden>
+        <header class="usr-head">
+          <div class="usr-head-copy">
+            <h2 class="directory-title">Gestión de usuarios</h2>
+            <p id="users-dialog-help">Administra las cuentas, roles, dependencias y estados de acceso.</p>
+          </div>
+          <div class="usr-head-tools">
+            <label class="usr-search" for="user-search">
+              <input
+                type="search"
+                id="user-search"
+                placeholder="Buscar por nombre o correo"
+                aria-label="Buscar por nombre o correo"
+                autocomplete="off"
+              />
+            </label>
+            <button type="button" class="btn btn-primary" id="btn-show-user-create">Nuevo usuario</button>
+          </div>
+        </header>
+
+        <div class="usr-filters">
+          <label class="usr-filter">
+            <select id="user-filter-role" aria-label="Filtrar por rol">
+              <option value="">Todos los roles</option>
+            </select>
+          </label>
+          <label class="usr-filter">
+            <select id="user-filter-dependencia" aria-label="Filtrar por dependencia">
+              <option value="">Todas las dependencias</option>
+            </select>
+          </label>
+          <label class="usr-filter">
+            <select id="user-filter-status" aria-label="Filtrar por estado">
+              <option value="">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-secondary" id="btn-clear-user-filters" hidden>Limpiar filtros</button>
+        </div>
+
+        <form id="user-form" class="user-form" hidden autocomplete="off">
+          <h3 id="user-form-title">Nuevo usuario</h3>
+          <p class="usr-form-help" id="user-form-help">Crea una cuenta y asigna su rol y dependencia.</p>
+          <div class="users-form-grid">
+            <label class="field" for="user-full-name">
+              <span>Nombre completo</span>
+              <input type="text" id="user-full-name" maxlength="200" placeholder="Ej. Ana Martínez" autocomplete="name" aria-required="true" />
+              <p class="field-error" id="user-name-error" hidden></p>
+            </label>
+            <label class="field" for="user-email">
+              <span>Correo electrónico</span>
+              <input type="email" id="user-email" maxlength="255" placeholder="Ej. usuario@dominio.com" autocomplete="off" aria-required="true" />
+              <p class="field-error" id="user-email-error" hidden></p>
+            </label>
+            <label class="field" for="user-role-select">
+              <span>Rol</span>
+              <select id="user-role-select" aria-required="true"></select>
+              <p class="field-error" id="user-role-error" hidden></p>
+            </label>
+            <label class="field" for="user-dependencia">
+              <span>Dependencia</span>
+              <select id="user-dependencia"></select>
+              <p class="field-hint" id="user-dependencia-note" hidden></p>
+              <p class="field-error" id="user-dependencia-error" hidden></p>
+            </label>
+            <label class="field" id="user-password-field" for="user-password">
+              <span id="user-password-label">Contraseña</span>
+              <span class="usr-password">
+                <input type="password" id="user-password" maxlength="128" autocomplete="new-password" aria-describedby="user-password-hint" />
+                <button type="button" class="usr-password-toggle" id="user-password-toggle" aria-label="Mostrar contraseña">Mostrar</button>
+              </span>
+              <p class="field-hint" id="user-password-hint">Mínimo 8 caracteres.</p>
+              <p class="field-error" id="user-password-error" hidden></p>
+            </label>
+            <label class="field" id="user-password-confirm-field" for="user-password-confirm">
+              <span>Confirmar contraseña</span>
+              <span class="usr-password">
+                <input type="password" id="user-password-confirm" maxlength="128" autocomplete="new-password" />
+                <button type="button" class="usr-password-toggle" id="user-password-confirm-toggle" aria-label="Mostrar contraseña">Mostrar</button>
+              </span>
+              <p class="field-error" id="user-password-confirm-error" hidden></p>
+            </label>
+          </div>
+          <p class="form-error" id="user-form-error" role="alert" tabindex="-1" hidden></p>
+          <div class="users-form-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-user-edit">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-user" disabled>Crear usuario</button>
+          </div>
+        </form>
+
+        <div class="users-list-block">
+          <div class="usr-list-head">
+            <h3>Cuentas registradas</h3>
+            <p id="users-count">Sin cuentas</p>
+          </div>
+          <div class="users-list" id="users-body" role="list"></div>
+          <nav id="users-pager" class="usr-pager" aria-label="Paginación de cuentas" hidden></nav>
+        </div>
+      </section>
+
+      <section id="dependencia-screen" class="users-panel" hidden>
+        <header class="dep-head">
+          <div class="dep-head-copy">
+            <h2 class="directory-title">Gestión de dependencias</h2>
+            <p>Administra las dependencias disponibles para organizar los proyectos.</p>
+          </div>
+          <div class="dep-head-tools">
+            <label class="dependencia-search" for="dependencia-search">
+              <span class="dep-sr">Buscar por nombre de dependencia</span>
+              <input
+                type="search"
+                id="dependencia-search"
+                placeholder="Buscar por nombre de dependencia"
+                aria-label="Buscar por nombre de dependencia"
+                autocomplete="off"
+              />
+            </label>
+            <button type="button" class="btn btn-primary" id="btn-show-dependencia-create">Nueva dependencia</button>
+          </div>
+        </header>
+        <div class="dep-list-head">
+          <h3>Dependencias</h3>
+          <p id="dependencia-count-line">Sin dependencias</p>
+        </div>
+        <form id="dependencia-form" class="dep-form" hidden autocomplete="off">
+          <h3 id="dependencia-form-title">Nueva dependencia</h3>
+          <p class="dep-form-help" id="dependencia-form-help">Ingresa el nombre con el que se identificará la dependencia.</p>
+          <label class="field" for="dependencia-new-name">
+            <span id="dependencia-name-label">Nombre de la dependencia</span>
+            <input
+              type="text"
+              id="dependencia-new-name"
+              maxlength="200"
+              placeholder="Ej. Calidad Educativa"
+              autocomplete="off"
+              aria-required="true"
+              aria-describedby="dependencia-form-help"
+            />
+          </label>
+          <p class="form-error" id="dependencia-form-error" hidden></p>
+          <div class="dialog-actions dep-form-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-dependencia-edit">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btn-create-dependencia" disabled>Crear dependencia</button>
+          </div>
+        </form>
+        <div class="dependencia-manage" id="dependencia-manage-list" role="list"></div>
+      </section>
+
+      <section class="directory" id="project-directory" aria-label="Directorio por dependencia">
+        <header class="proj-head">
+          <div class="proj-head-copy">
+            <h2 class="directory-title">Proyectos</h2>
+            <p>Administra dependencias, proyectos, carpetas y documentos.</p>
+          </div>
+          <div class="proj-head-tools">
+            <label class="directory-search" for="directory-search">
+              <span class="proj-sr">Buscar por dependencia, proyecto o BPIN</span>
+              <input
+                type="search"
+                id="directory-search"
+                placeholder="Buscar por dependencia, proyecto o BPIN"
+                aria-label="Buscar por dependencia, proyecto o BPIN"
+                autocomplete="off"
+              />
+            </label>
+            <button type="button" class="btn btn-primary" id="btn-header-new-project" hidden>Nuevo proyecto</button>
+          </div>
+        </header>
+        <div class="directory-menus">
+          <label class="directory-menu" for="menu-dependencia">
+            <span>Dependencia</span>
+            <select id="menu-dependencia"></select>
+          </label>
+          <label class="directory-menu" for="menu-proyecto">
+            <span>Proyecto</span>
+            <select id="menu-proyecto"></select>
+          </label>
+        </div>
+        <div id="directory-groups"></div>
+      </section>
+
+      <header class="main-header" id="main-header">
         <div class="header-title">
           <h2 class="page-title" id="page-title">Bienvenido</h2>
           <p class="eyebrow" id="context-eyebrow">Sin proyecto seleccionado</p>
@@ -216,13 +372,16 @@
 
       <section class="panel" id="docs-panel" hidden>
         <div class="panel-head">
-          <h3>Documentos en esta carpeta</h3>
+          <div>
+            <h3 id="docs-title">Documentos</h3>
+            <p class="proj-docs-count" id="docs-count-line">Carpeta vacía</p>
+            <span id="docs-count" hidden>0</span>
+          </div>
           <div class="panel-head-right">
-            <span class="count-pill" id="docs-count">0</span>
             <div class="empty-docs" id="docs-empty" hidden>
               <span>Aún no hay documentos en esta carpeta.</span>
-              <button type="button" class="btn btn-primary" id="btn-upload-new-empty">Subir nuevo documento</button>
             </div>
+            <button type="button" class="btn btn-primary" id="btn-upload-new-empty" hidden>Subir documentos</button>
             <button type="button" class="btn btn-primary" id="btn-upload-more" hidden>Subir documentos</button>
           </div>
         </div>
@@ -230,44 +389,63 @@
           <table class="docs-table">
             <thead>
               <tr>
-                <th>Nombre del documento</th>
+                <th>Documento</th>
                 <th>Archivo</th>
                 <th>Subido por</th>
-                <th class="col-edited">Editado por</th>
+                <th>Fecha</th>
                 <th>Tamaño</th>
-                <th>Vista</th>
-                <th></th>
+                <th>Vista previa</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="docs-body"></tbody>
           </table>
         </div>
+        <nav id="docs-pager" class="pager" aria-label="Paginación de documentos" hidden></nav>
       </section>
     </main>
   </div>
 
-  <dialog id="project-dialog" class="dialog">
-    <form method="dialog" id="project-form" class="dialog-body">
-      <header>
-        <h3 id="project-dialog-title">Crear nuevo proyecto</h3>
-        <p id="project-dialog-help">El nombre y el BPIN definen la carpeta raíz en el servidor.</p>
+  <dialog id="project-dialog" class="dialog" aria-modal="true" aria-labelledby="project-dialog-title" aria-describedby="project-dialog-help">
+    <form id="project-form" class="dialog-body" autocomplete="off">
+      <header class="project-dialog-head">
+        <div>
+          <h3 id="project-dialog-title">Crear nuevo proyecto</h3>
+          <p id="project-dialog-help">El nombre y el BPIN definirán la carpeta raíz del proyecto en el servidor.</p>
+        </div>
+        <button type="button" class="project-dialog-close" id="btn-close-project" aria-label="Cerrar modal">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
       </header>
 
-      <label class="field">
-        <span>Nombre del proyecto</span>
-        <input type="text" id="project-name" required maxlength="200" placeholder="Ej. Mejoramiento vial zona norte" />
-      </label>
+      <div class="project-dialog-scroll">
+        <label class="field" for="project-name">
+          <span id="project-name-label">Nombre del proyecto</span>
+          <input type="text" id="project-name" maxlength="200" placeholder="Ej. Mejoramiento vial zona norte" autocomplete="off" aria-required="true" />
+          <p class="field-error" id="project-name-error" hidden></p>
+        </label>
 
-      <label class="field">
-        <span>BPIN</span>
-        <input type="text" id="project-bpin" required maxlength="50" placeholder="Ej. 2024123456" />
-      </label>
+        <label class="field" for="project-bpin">
+          <span id="project-bpin-label">BPIN</span>
+          <input type="text" id="project-bpin" maxlength="50" placeholder="Ej. 2024123456" autocomplete="off" aria-required="true" />
+          <p class="field-error" id="project-bpin-error" hidden></p>
+        </label>
 
-      <p class="form-error" id="project-error" hidden></p>
+        <label class="field" id="project-dependencia-field" for="project-dependencia">
+          <span>Dependencia</span>
+          <select id="project-dependencia" aria-required="true"></select>
+          <p class="field-error" id="project-dependencia-error" hidden></p>
+          <p class="field-hint" id="project-dependencia-note" hidden></p>
+        </label>
+
+        <p class="form-error" id="project-error" role="alert" tabindex="-1" hidden></p>
+      </div>
 
       <footer class="dialog-actions">
-        <button type="button" class="btn btn-secondary" id="btn-cancel-project" value="cancel">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-save-project">Crear proyecto</button>
+        <button type="button" class="btn btn-secondary" id="btn-cancel-project">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-project" disabled>Crear proyecto</button>
       </footer>
     </form>
   </dialog>
@@ -379,70 +557,32 @@
     </div>
   </dialog>
 
-  <dialog id="users-dialog" class="dialog users-dialog">
-    <div class="dialog-body users-dialog-body">
-      <header class="users-dialog-header">
-        <div>
-          <h3>Usuarios</h3>
-          <p id="users-dialog-help">Cree y administre cuentas según su rol.</p>
-        </div>
-        <button type="button" class="btn btn-secondary" id="btn-close-users">Cerrar</button>
-      </header>
-
-      <form id="user-form" class="user-form">
-        <div class="users-form-grid">
-          <label class="field">
-            <span>Nombre completo</span>
-            <input type="text" id="user-full-name" required maxlength="200" autocomplete="name" />
-          </label>
-          <label class="field">
-            <span>Correo</span>
-            <input type="email" id="user-email" required autocomplete="off" />
-          </label>
-          <label class="field" id="user-password-field">
-            <span id="user-password-label">Contraseña</span>
-            <input type="password" id="user-password" minlength="8" autocomplete="new-password" />
-          </label>
-          <label class="field">
-            <span>Rol</span>
-            <select id="user-role-select" required></select>
-          </label>
-        </div>
-        <p class="form-error" id="user-form-error" hidden></p>
-        <div class="users-form-actions">
-          <button type="submit" class="btn btn-primary" id="btn-save-user">Crear usuario</button>
-          <button type="button" class="btn btn-secondary" id="btn-cancel-user-edit" hidden>Cancelar</button>
-        </div>
-      </form>
-
-      <div class="users-list-block">
-        <div class="users-list-head">
-          <p class="users-list-label">Cuentas registradas</p>
-          <span class="users-list-count" id="users-count">0</span>
-        </div>
-        <div class="users-list" id="users-body" role="list"></div>
-      </div>
-    </div>
-  </dialog>
-
-  <dialog id="password-dialog" class="dialog">
-    <form method="dialog" id="password-form" class="dialog-body">
+  <dialog id="password-dialog" class="dialog" aria-labelledby="password-dialog-title" aria-describedby="password-dialog-help">
+    <form id="password-form" class="dialog-body" autocomplete="off">
       <header>
-        <h3>Actualizar contraseña</h3>
-        <p id="password-dialog-help">Defina una nueva contraseña para el usuario.</p>
+        <h3 id="password-dialog-title">Cambiar contraseña</h3>
+        <p id="password-dialog-help">Define una nueva contraseña para esta cuenta.</p>
+        <p id="password-account-name" class="field-hint"></p>
       </header>
-      <label class="field">
+      <label class="field" for="password-new">
         <span>Nueva contraseña</span>
-        <input type="password" id="password-new" required minlength="8" maxlength="128" autocomplete="new-password" />
+        <span class="usr-password">
+          <input type="password" id="password-new" maxlength="128" autocomplete="new-password" aria-describedby="password-new-hint" />
+          <button type="button" class="usr-password-toggle" id="password-new-toggle" aria-label="Mostrar contraseña">Mostrar</button>
+        </span>
+        <p class="field-hint" id="password-new-hint">Mínimo 8 caracteres.</p>
       </label>
-      <label class="field">
-        <span>Confirmar contraseña</span>
-        <input type="password" id="password-confirm" required minlength="8" maxlength="128" autocomplete="new-password" />
+      <label class="field" for="password-confirm">
+        <span>Confirmar nueva contraseña</span>
+        <span class="usr-password">
+          <input type="password" id="password-confirm" maxlength="128" autocomplete="new-password" />
+          <button type="button" class="usr-password-toggle" id="password-confirm-toggle" aria-label="Mostrar contraseña">Mostrar</button>
+        </span>
       </label>
-      <p class="form-error" id="password-form-error" hidden></p>
+      <p class="form-error" id="password-form-error" role="alert" hidden></p>
       <footer class="dialog-actions">
         <button type="button" class="btn btn-secondary" id="btn-cancel-password">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-save-password">Guardar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-password">Actualizar contraseña</button>
       </footer>
     </form>
   </dialog>
@@ -457,6 +597,6 @@
     </form>
   </dialog>
 
-  <script src="/static/js/app.js?v=20260925p" defer></script>
+  <script type="module" src="/static/js/app.js?v=20261014a"></script>
 </body>
 </html>

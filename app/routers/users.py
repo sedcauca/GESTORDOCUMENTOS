@@ -1,23 +1,60 @@
 """CRUD de usuarios (solo administradores)."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import require_roles
 from app.models import User
-from app.roles import ROLE_LABELS, USER_MGMT_ROLES
-from app.schemas import RoleOut, UserCreate, UserOut, UserUpdate
+from app.roles import ROLE_LABELS, ROLE_SUPER_ADMIN, USER_MGMT_ROLES
+from app.schemas import DependenciaCreate, DependenciaOut, RoleOut, UserCreate, UserOut, UserUpdate
 from app.services import auth_service
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 
+@router.get("/dependencias", response_model=list[DependenciaOut])
+def list_dependencias(
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_roles(*USER_MGMT_ROLES)),
+):
+    return auth_service.list_dependencias(db, actor)
+
+
+@router.post("/dependencias", response_model=DependenciaOut, status_code=201)
+def create_dependencia(
+    payload: DependenciaCreate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_roles(ROLE_SUPER_ADMIN)),
+):
+    return auth_service.create_dependencia(db, actor, payload.name)
+
+
+@router.patch("/dependencias/{dependencia_id}", response_model=DependenciaOut)
+def update_dependencia(
+    dependencia_id: int,
+    payload: DependenciaCreate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_roles(ROLE_SUPER_ADMIN)),
+):
+    return auth_service.update_dependencia(db, actor, dependencia_id, payload.name)
+
+
+@router.delete("/dependencias/{dependencia_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_dependencia(
+    dependencia_id: int,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_roles(ROLE_SUPER_ADMIN)),
+):
+    auth_service.delete_dependencia(db, actor, dependencia_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.get("", response_model=list[UserOut])
 def list_users(
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*USER_MGMT_ROLES)),
+    actor: User = Depends(require_roles(*USER_MGMT_ROLES)),
 ):
-    return [auth_service.user_to_out(u) for u in auth_service.list_users(db)]
+    return [auth_service.user_to_out(u) for u in auth_service.list_users(db, actor)]
 
 
 @router.get("/roles", response_model=list[RoleOut])

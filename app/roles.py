@@ -11,7 +11,7 @@ ROLE_LABELS = {
 }
 
 ROLE_DESCRIPTIONS = {
-    ROLE_SUPER_ADMIN: "Control total del sistema, incluida la gestión de administradores y la papelera completa.",
+    ROLE_SUPER_ADMIN: "Crea dependencias y cuentas de administrador. Control total del sistema, incluida la papelera completa.",
     ROLE_ADMIN: "Gestiona proyectos y documentos. En usuarios solo puede crear el rol Usuario.",
     ROLE_USER: "Consulta documentos y puede subir, editar, descargar y mover a la papelera cualquier documento. Puede renombrar y borrar carpetas. No crea proyectos ni borra definitivamente.",
 }

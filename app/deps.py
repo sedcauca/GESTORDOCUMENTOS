@@ -50,7 +50,7 @@ def get_current_user(
 
     user = (
         db.query(User)
-        .options(joinedload(User.role))
+        .options(joinedload(User.role), joinedload(User.dependencia_ref))
         .filter(User.id == int(user_id))
         .first()
     )

@@ -1,100 +1,87 @@
 # Gestor de Documentos de Proyectos
 
-Aplicación web local para crear proyectos (nombre + BPIN), generar carpetas automáticamente y cargar documentos PDF. Backend en **FastAPI**, persistencia en **SQLite** y archivos en el sistema de archivos.
+Aplicación local para organizar proyectos por BPIN, carpetas y PDF. El servidor es **FastAPI**, los datos viven en **SQLite** y los archivos en `uploads/`. La interfaz que sirve `/` está en `templates/` y `static/`.
+
+Hay otra interfaz en `src/` (portal con Vite). FastAPI no la monta.
 
 ## Requisitos
 
-- Kubuntu / Linux
+- Linux
 - Python 3.10 o superior
-- Navegador web moderno
+- Navegador moderno
 
 ## Estructura
 
 ```
-CARGUE DOCUMENTOS/
-├── app/                 # Backend FastAPI
-├── templates/           # Interfaz HTML
-├── static/              # CSS y JavaScript
-├── data/                # Base de datos SQLite (documentos.db)
-├── uploads/             # PDFs por proyecto/carpeta
+GESTORDOCUMENTOS/
+├── app/                 # API FastAPI, servicios y migraciones SQLite
+├── templates/           # Pantalla del gestor
+├── static/css/          # Estilos por área (base, shell, listados, diálogos, login, paneles)
+├── static/js/           # Módulos del cliente, sin bundler
+├── data/                # documentos.db (no se versiona)
+├── uploads/             # PDF por proyecto
+├── tests/               # Caracterización de la API sobre una base temporal
 ├── requirements.txt
-└── README.md
+└── requirements-dev.txt
 ```
 
-Al crear un proyecto se generan estas carpetas iniciales:
+Al crear un proyecto se generan `Carpeta 1` … `Carpeta 8`. Después se pueden crear, renombrar o mover a la papelera. En disco la raíz queda como `uploads/<BPIN>_<NombreProyecto>/`.
 
-`Carpeta 1` … `Carpeta 8`
-
-Después puede **crear más carpetas**, **renombrarlas** o **eliminarlas** desde el menú lateral o los botones del encabezado. La carpeta raíz en disco queda como: `uploads/<BPIN>_<NombreProyecto>/`.
+El acceso exige sesión. Los roles son super administrador, administrador y usuario. El primer super administrador se crea al arrancar si `ADMIN_EMAIL`, `ADMIN_PASSWORD` y `ADMIN_NAME` están definidos en el entorno o en `.env`.
 
 ## Instalación
 
-Abra una terminal y ejecute:
-
 ```bash
-cd "$HOME/Documentos/SOFTWARE/CARGUE DOCUMENTOS"
+cd "$HOME/Documentos/SOFTWARE/GESTOR-DOCUMENTOS/GESTORDOCUMENTOS"
 
 python3 -m venv venv
 source venv/bin/activate
 
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
-> Si ya existe la carpeta `venv`, basta con activarla y reinstalar dependencias:
->
-> ```bash
-> source venv/bin/activate
-> pip install -r requirements.txt
-> ```
-
-## Ejecutar el servidor
-
-Desde la carpeta del proyecto, con el entorno virtual activado:
+## Ejecutar
 
 ```bash
-cd "$HOME/Documentos/SOFTWARE/CARGUE DOCUMENTOS"
 source venv/bin/activate
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Debería ver un mensaje similar a:
+Abra [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-```text
-Uvicorn running on http://127.0.0.1:8000
+## Pruebas de la API
+
+Usan una base SQLite temporal. No leen `data/documentos.db` ni `uploads/` del proyecto.
+
+```bash
+source venv/bin/activate
+python -m unittest tests.test_api_flow -v
 ```
 
-## Acceder desde el navegador
-
-Abra:
-
-[http://127.0.0.1:8000](http://127.0.0.1:8000)
-
-## Uso rápido
-
-1. Pulse **Nuevo proyecto**.
-2. Indique **Nombre del proyecto** y **BPIN** (obligatorios).
-3. En el menú lateral elija el proyecto y la carpeta de destino.
-4. Complete **Nombre del documento**, revise la **Fecha de carga** (automática) y seleccione un **PDF**.
-5. Pulse **Subir documento**.
-
-## API útil
+## API
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | GET | `/api/health` | Salud del servicio |
-| GET | `/api/projects` | Listar proyectos |
+| POST | `/api/auth/login` | Inicia sesión y deja la cookie |
+| POST | `/api/auth/logout` | Cierra la sesión |
+| GET | `/api/auth/me` | Usuario actual |
+| GET | `/api/projects` | Listar proyectos visibles |
 | POST | `/api/projects` | Crear proyecto |
-| GET | `/api/projects/{id}` | Detalle + carpetas |
+| GET | `/api/projects/{id}` | Detalle y carpetas |
 | POST | `/api/projects/{id}/folders` | Crear carpeta |
 | PATCH | `/api/folders/{id}` | Renombrar carpeta |
-| DELETE | `/api/folders/{id}` | Eliminar carpeta |
+| DELETE | `/api/folders/{id}` | Mover carpeta a la papelera |
 | POST | `/api/folders/{id}/documents` | Subir PDF |
 | GET | `/api/documents/{id}/download` | Descargar PDF |
+| GET | `/api/trash` | Listar papelera |
 
 ## Notas
 
-- Solo se aceptan archivos **PDF** (validación por extensión y contenido).
-- Tamaño máximo por archivo: **50 MB**.
-- La base de datos se crea sola en `data/documentos.db` al iniciar.
-- Para detener el servidor: `Ctrl + C` en la terminal.
+- Solo se aceptan **PDF** (extensión y contenido).
+- Tamaño máximo por archivo: **50 MB**, o el valor de `MAX_FILE_SIZE_MB`.
+- La base se crea en `data/documentos.db` al iniciar. Los cambios de columnas de bases ya existentes están en `app/schema_migrate.py`.
+- Borrar desde la interfaz mueve a la papelera. El borrado definitivo es otra acción.
+- Para detener el servidor: `Ctrl + C`.

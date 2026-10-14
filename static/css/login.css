@@ -1,0 +1,250 @@
+/* ─── Login (split institucional) ───────────────────────────────────────── */
+
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+  background: var(--surface);
+}
+
+.login-screen[hidden] {
+  display: none !important;
+}
+
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  background: var(--sidebar);
+  color: var(--sidebar-text);
+}
+
+.login-panel-inner {
+  width: min(100%, 28rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.15rem;
+}
+
+.login-logo-plate {
+  width: 100%;
+  max-width: 22rem;
+  padding: 0.85rem 1rem;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.login-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-panel-title {
+  margin-top: 0.35rem;
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.login-panel-rule {
+  display: block;
+  width: 3.25rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.login-panel-lead {
+  max-width: 24rem;
+  color: var(--sidebar-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.login-form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.75rem 1.5rem;
+  background: var(--surface);
+  position: relative;
+}
+
+.login-form {
+  width: min(100%, 24rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+.login-form-header {
+  margin-bottom: 0.35rem;
+}
+
+.login-form-title {
+  font-size: clamp(1.55rem, 2vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.login-form-subtitle {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.login-field .login-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0 0.85rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.login-field .login-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.login-input-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.login-field .login-input-wrap input[type="email"],
+.login-field .login-input-wrap input[type="password"] {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.85rem 0;
+  color: var(--text);
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.login-field .login-input-wrap input[type="email"]:focus,
+.login-field .login-input-wrap input[type="password"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.login-field > span:first-child {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--text);
+  opacity: 1;
+}
+
+.login-field .login-input-wrap {
+  opacity: 1;
+}
+
+.btn-login {
+  margin-top: 0.35rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--sidebar);
+  border-color: var(--sidebar);
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-login:hover:not(:disabled) {
+  background: #2a2e3a;
+  border-color: #2a2e3a;
+}
+
+.login-footer {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1rem;
+  right: 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .login-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .login-panel {
+    padding: 2rem 1.5rem 1.75rem;
+    min-height: auto;
+  }
+
+  .login-panel-inner {
+    gap: 0.9rem;
+  }
+
+  .login-panel-title {
+    font-size: 1.35rem;
+  }
+
+  .login-panel-lead {
+    font-size: 0.88rem;
+  }
+
+  .login-form-panel {
+    padding: 2rem 1.35rem 4rem;
+    justify-content: flex-start;
+  }
+
+  .login-footer {
+    position: static;
+    margin-top: 2rem;
+  }
+}
+
+/* Compat: clases antiguas del login (por si quedan referencias) */
+.login-card {
+  width: min(100%, 420px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.login-brand {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.login-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.login-lead {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.app-shell[hidden] {
+  display: none !important;
+}

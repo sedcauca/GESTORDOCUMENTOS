@@ -24,9 +24,9 @@ def list_trash(
 def restore_project(
     project_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*WRITE_ROLES)),
+    actor: User = Depends(require_roles(*WRITE_ROLES)),
 ):
-    project = trash_service.restore_project(db, project_id)
+    project = trash_service.restore_project(db, project_id, actor=actor)
     return {"id": project.id, "name": project.name, "bpin": project.bpin}
 
 
@@ -34,9 +34,9 @@ def restore_project(
 def purge_project(
     project_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*PURGE_ROLES)),
+    actor: User = Depends(require_roles(*PURGE_ROLES)),
 ):
-    trash_service.purge_project(db, project_id)
+    trash_service.purge_project(db, project_id, actor=actor)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -44,9 +44,9 @@ def purge_project(
 def restore_folder(
     folder_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*FOLDER_MGMT_ROLES)),
+    actor: User = Depends(require_roles(*FOLDER_MGMT_ROLES)),
 ):
-    folder = trash_service.restore_folder(db, folder_id)
+    folder = trash_service.restore_folder(db, folder_id, actor=actor)
     return {"id": folder.id, "name": folder.name}
 
 
@@ -54,9 +54,9 @@ def restore_folder(
 def purge_folder(
     folder_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*PURGE_ROLES)),
+    actor: User = Depends(require_roles(*PURGE_ROLES)),
 ):
-    trash_service.purge_folder(db, folder_id)
+    trash_service.purge_folder(db, folder_id, actor=actor)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -74,7 +74,7 @@ def restore_document(
 def purge_document(
     document_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(*PURGE_ROLES)),
+    actor: User = Depends(require_roles(*PURGE_ROLES)),
 ):
-    trash_service.purge_document(db, document_id)
+    trash_service.purge_document(db, document_id, actor=actor)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

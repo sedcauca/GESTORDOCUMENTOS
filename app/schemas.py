@@ -15,6 +15,17 @@ def _normalize_email(value: str) -> str:
     return email
 
 
+class DependenciaCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+
+
+class DependenciaOut(BaseModel):
+    id: int
+    name: str
+
+    model_config = {"from_attributes": True}
+
+
 class LoginRequest(BaseModel):
     email: str = Field(..., min_length=3, max_length=255)
     password: str = Field(..., min_length=1)
@@ -41,6 +52,8 @@ class UserOut(BaseModel):
     role: str
     role_label: str
     is_active: bool
+    dependencia_id: int | None = None
+    dependencia: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -51,6 +64,7 @@ class UserCreate(BaseModel):
     email: str = Field(..., min_length=3, max_length=255)
     password: str = Field(..., min_length=8, max_length=128)
     role: str = Field(..., min_length=1, max_length=50)
+    dependencia_id: int | None = None
     is_active: bool = True
 
     @field_validator("email")
@@ -64,6 +78,7 @@ class UserUpdate(BaseModel):
     email: str | None = Field(None, min_length=3, max_length=255)
     password: str | None = Field(None, min_length=8, max_length=128)
     role: str | None = Field(None, min_length=1, max_length=50)
+    dependencia_id: int | None = None
     is_active: bool | None = None
 
     @field_validator("email")
@@ -77,11 +92,15 @@ class UserUpdate(BaseModel):
 class ProjectCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     bpin: str = Field(..., min_length=1, max_length=50)
+    dependencia_id: int | None = None
+    member_ids: list[int] = Field(default_factory=list)
 
 
 class ProjectUpdate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     bpin: str = Field(..., min_length=1, max_length=50)
+    dependencia_id: int | None = None
+    member_ids: list[int] | None = None
 
 
 class FolderCreate(BaseModel):
@@ -107,6 +126,9 @@ class ProjectOut(BaseModel):
     name: str
     bpin: str
     created_at: datetime
+    dependencia_id: int | None = None
+    dependencia: str | None = None
+    member_ids: list[int] = []
     folders: list[FolderOut] = []
 
     model_config = {"from_attributes": True}
@@ -117,6 +139,9 @@ class ProjectSummary(BaseModel):
     name: str
     bpin: str
     created_at: datetime
+    dependencia_id: int | None = None
+    dependencia: str | None = None
+    member_ids: list[int] = []
 
     model_config = {"from_attributes": True}
 

@@ -1,0 +1,70 @@
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --text: #1e212b;
+  --muted: #94a3b8;
+  --border: #e2e8f0;
+  --sidebar: #1e212b;
+  --sidebar-text: #fafafa;
+  --sidebar-muted: #94a3b8;
+  --sidebar-hover: #2a2e3a;
+  --sidebar-active: #343848;
+  --sidebar-border: #3a3f4d;
+  --sidebar-width: 320px;
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.25);
+  --input-bg: #eef2ff;
+  --ok: #166534;
+  --ok-bg: #edf3ec;
+  --err: #9f2f2d;
+  --err-bg: #fdebec;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(30, 33, 43, 0.05);
+  --font: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 500px at 0% -10%, rgba(30, 33, 43, 0.04), transparent 55%),
+    linear-gradient(180deg, #eef1f7 0%, var(--bg) 40%, #f8fafc 100%);
+}
+
+body {
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+/* Los botones usan display:flex/inline-flex y anulan el atributo HTML hidden. */
+[hidden] {
+  display: none !important;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}

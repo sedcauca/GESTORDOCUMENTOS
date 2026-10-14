@@ -1,7 +1,7 @@
 """Modelos SQLite: usuarios, roles, proyectos, carpetas y documentos."""
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -17,6 +17,17 @@ class Role(Base):
     users: Mapped[list["User"]] = relationship(back_populates="role")
 
 
+class Dependencia(Base):
+    __tablename__ = "dependencias"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(200), unique=True, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    users: Mapped[list["User"]] = relationship(back_populates="dependencia_ref")
+    projects: Mapped[list["Project"]] = relationship(back_populates="dependencia_ref")
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -26,16 +37,39 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    dependencia: Mapped[str | None] = mapped_column(String(200), nullable=True, default=None)
+    dependencia_id: Mapped[int | None] = mapped_column(
+        ForeignKey("dependencias.id"), nullable=True, default=None, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, onupdate=datetime.now
     )
 
     role: Mapped["Role"] = relationship(back_populates="users")
+    dependencia_ref: Mapped["Dependencia | None"] = relationship(back_populates="users")
+    projects: Mapped[list["Project"]] = relationship(
+        secondary="project_members",
+        back_populates="members",
+    )
 
     @property
     def role_name(self) -> str:
         return self.role.name if self.role else ""
+
+    @property
+    def dependencia_name(self) -> str | None:
+        if self.dependencia_ref is not None:
+            return self.dependencia_ref.name
+        return self.dependencia
+
+
+project_members = Table(
+    "project_members",
+    Base.metadata,
+    Column("project_id", ForeignKey("projects.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class Project(Base):
@@ -45,6 +79,9 @@ class Project(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     bpin: Mapped[str] = mapped_column(String(80), unique=True, nullable=False, index=True)
     root_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    dependencia_id: Mapped[int | None] = mapped_column(
+        ForeignKey("dependencias.id"), nullable=True, default=None, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
     deleted_by_id: Mapped[int | None] = mapped_column(
@@ -57,6 +94,11 @@ class Project(Base):
         order_by="Folder.position",
     )
     deleted_by: Mapped["User | None"] = relationship("User", foreign_keys=[deleted_by_id])
+    members: Mapped[list["User"]] = relationship(
+        secondary=project_members,
+        back_populates="projects",
+    )
+    dependencia_ref: Mapped["Dependencia | None"] = relationship(back_populates="projects")
 
     @property
     def is_trashed(self) -> bool:
